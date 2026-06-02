@@ -66,25 +66,67 @@
             </div>
         </header>
 
+            <div id="notifications" class="w-full px-4 lg:px-8 mt-4 shrink-0">
+                
+                @if(session('success'))
+                    <div class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 p-4 rounded-lg shadow-sm mb-2 flex items-start gap-3">
+                        <i data-lucide="check-circle" class="w-5 h-5 shrink-0 mt-0.5"></i> 
+                        <span class="font-medium">{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm mb-2 flex items-start gap-3">
+                        <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 mt-0.5"></i> 
+                        <span class="font-medium">{{ session('error') }}</span>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm mb-2">
+                        <div class="flex items-center gap-2 mb-2 font-bold">
+                            <i data-lucide="x-circle" class="w-5 h-5"></i> Ada kesalahan input:
+                        </div>
+                        <ul class="list-disc pl-8 text-sm space-y-1">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+            </div>  
+            <script>lucide.createIcons();</script>
+
+        @if(session('success'))
+            <div class="m-4 md:mx-8 bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="m-4 md:mx-8 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+        @endif
+
         <div class="flex-1 overflow-auto p-4 md:p-8">
             
             <div id="tab-dashboard" class="tab-content space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
                         <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-500 text-white"><i data-lucide="database" class="w-6 h-6"></i></div>
-                        <div><p class="text-gray-500 text-sm font-medium">Total Stok Kayu</p><h3 class="text-2xl font-bold text-gray-800">750</h3><p class="text-xs text-gray-400 mt-0.5">Batang / Lembar</p></div>
+                        <div><p class="text-gray-500 text-sm font-medium">Total Stok Kayu</p><h3 class="text-2xl font-bold text-gray-800">{{ $totalStok }}</h3><p class="text-xs text-gray-400 mt-0.5">Batang / Lembar</p></div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
                         <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-emerald-500 text-white"><i data-lucide="arrow-down-to-line" class="w-6 h-6"></i></div>
-                        <div><p class="text-gray-500 text-sm font-medium">Barang Masuk</p><h3 class="text-2xl font-bold text-gray-800">150</h3><p class="text-xs text-gray-400 mt-0.5">Bulan Ini</p></div>
+                        <div><p class="text-gray-500 text-sm font-medium">Barang Masuk</p><h3 class="text-2xl font-bold text-gray-800">{{ $barangMasukBulanIni }}</h3><p class="text-xs text-gray-400 mt-0.5">Bulan Ini</p></div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
                         <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-amber-500 text-white"><i data-lucide="arrow-up-from-line" class="w-6 h-6"></i></div>
-                        <div><p class="text-gray-500 text-sm font-medium">Barang Keluar</p><h3 class="text-2xl font-bold text-gray-800">20</h3><p class="text-xs text-gray-400 mt-0.5">Bulan Ini</p></div>
+                        <div><p class="text-gray-500 text-sm font-medium">Barang Keluar</p><h3 class="text-2xl font-bold text-gray-800">{{ $barangKeluarBulanIni }}</h3><p class="text-xs text-gray-400 mt-0.5">Bulan Ini</p></div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
                         <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-red-500 text-white"><i data-lucide="bell" class="w-6 h-6"></i></div>
-                        <div><p class="text-gray-500 text-sm font-medium">Peringatan Stok</p><h3 class="text-2xl font-bold text-gray-800">1</h3><p class="text-xs text-gray-400 mt-0.5">Item Menipis</p></div>
+                        <div><p class="text-gray-500 text-sm font-medium">Peringatan Stok</p><h3 class="text-2xl font-bold text-gray-800">{{ $peringatanStok }}</h3><p class="text-xs text-gray-400 mt-0.5">Item Menipis</p></div>
                     </div>
                 </div>
 
@@ -102,24 +144,26 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
+                                    @forelse($daftarKayu as $kayu)
                                     <tr class="hover:bg-gray-50/50">
-                                        <td class="px-6 py-3 font-medium text-gray-800">Jati</td>
-                                        <td class="px-6 py-3 text-gray-600">400x20x15</td>
-                                        <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs font-medium border bg-indigo-50 text-indigo-700 border-indigo-200">Besar</span></td>
-                                        <td class="px-6 py-3 text-right"><span class="font-semibold text-gray-800">150</span><span class="text-gray-500 text-xs ml-1">Batang</span></td>
+                                        <td class="px-6 py-3 font-medium text-gray-800">{{ $kayu->jenis_kayu }}</td>
+                                        <td class="px-6 py-3 text-gray-600">{{ $kayu->dimensi }}</td>
+                                        <td class="px-6 py-3">
+                                            <span class="px-2 py-1 rounded text-xs font-medium border 
+                                                {{ $kayu->ukuran == 'Besar' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-teal-50 text-teal-700 border-teal-200' }}">
+                                                {{ $kayu->ukuran }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-3 text-right">
+                                            <span class="font-semibold {{ $kayu->stok < 10 ? 'text-red-600' : 'text-gray-800' }}">{{ $kayu->stok }}</span>
+                                            <span class="text-gray-500 text-xs ml-1">Btg/Lbr</span>
+                                        </td>
                                     </tr>
-                                    <tr class="hover:bg-gray-50/50">
-                                        <td class="px-6 py-3 font-medium text-gray-800">Mahoni</td>
-                                        <td class="px-6 py-3 text-gray-600">300x15x10</td>
-                                        <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs font-medium border bg-teal-50 text-teal-700 border-teal-200">Sedang</span></td>
-                                        <td class="px-6 py-3 text-right"><span class="font-semibold text-gray-800">85</span><span class="text-gray-500 text-xs ml-1">Batang</span></td>
+                                    @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-gray-500">Belum ada data kayu.</td>
                                     </tr>
-                                    <tr class="hover:bg-gray-50/50">
-                                        <td class="px-6 py-3 font-medium text-gray-800">Sengon</td>
-                                        <td class="px-6 py-3 text-gray-600">200x10x5</td>
-                                        <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs font-medium border bg-teal-50 text-teal-700 border-teal-200">Sedang</span></td>
-                                        <td class="px-6 py-3 text-right"><span class="font-semibold text-gray-800">320</span><span class="text-gray-500 text-xs ml-1">Lembar</span></td>
-                                    </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -128,24 +172,26 @@
                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
                         <div class="px-6 py-4 border-b border-gray-100"><h2 class="font-semibold text-gray-800">Aktivitas Terakhir</h2></div>
                         <div class="p-4 flex-1 overflow-y-auto max-h-[350px] space-y-4">
-                            <div class="flex gap-4 items-start pb-4 border-b border-gray-50">
+                        @forelse($aktivitasTerakhir as $log)
+                        <div class="flex gap-4 items-start pb-4 border-b border-gray-50">
+                            @if($log->tipe == 'masuk')
                                 <div class="mt-1 w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-emerald-100 text-emerald-600"><i data-lucide="arrow-down-to-line" class="w-4 h-4"></i></div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-800">Jati (Besar) x 50</p>
-                                    <p class="text-xs text-gray-500 mt-0.5">Relasi: CV. Kayu Makmur</p>
-                                    <p class="text-[11px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded inline-block mt-1">Asal: Hutan Blora</p>
-                                    <p class="text-xs text-gray-400 mt-1">2026-04-07 08:30 • SJ-IN-001</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-4 items-start pb-4 border-b border-gray-50">
+                            @else
                                 <div class="mt-1 w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-amber-100 text-amber-600"><i data-lucide="arrow-up-from-line" class="w-4 h-4"></i></div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-800">Sengon (Sedang) x 20</p>
-                                    <p class="text-xs text-gray-500 mt-0.5">Customer: Bpk. Budi</p>
-                                    <p class="text-xs text-gray-400 mt-1">2026-04-07 10:15 • SJ-OUT-101</p>
-                                </div>
+                            @endif
+                            
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">{{ $log->kayu->jenis_kayu }} ({{ $log->kayu->ukuran }}) x {{ $log->jumlah }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    {{ $log->tipe == 'masuk' ? 'Supplier: ' . $log->asal_supplier : 'Customer: ' . $log->customer }}
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">{{ \Carbon\Carbon::parse($log->waktu)->format('Y-m-d H:i') }} • {{ $log->kode_transaksi }}</p>
                             </div>
                         </div>
+                        @empty
+                        <p class="text-sm text-gray-500 text-center">Belum ada aktivitas.</p>
+                        @endforelse
+                    </div>
                     </div>
                 </div>
             </div>
@@ -188,26 +234,26 @@
                     <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100">
                         <h2 class="font-semibold text-emerald-800 text-lg flex items-center gap-2"><i data-lucide="arrow-down-to-line" class="w-5 h-5"></i> Form Penerimaan Kayu (Masuk)</h2>
                     </div>
-                    <form class="p-6 space-y-6" onsubmit="event.preventDefault(); alert('Tersimpan!');">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <form action="{{ route('barang-masuk.store') }}" method="POST" class="p-6 space-y-6">
+                        @csrf <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-4">
                                 <h3 class="font-medium text-gray-800 border-b pb-2">Informasi Penerimaan</h3>
-                                <div><label class="block text-sm text-emerald-700 font-semibold mb-1">No. Surat Jalan / Nota</label><input type="text" placeholder="SJ-IN-..." class="w-full border border-emerald-300 bg-emerald-50/30 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500" required></div>
-                                <div><label class="block text-sm text-gray-600 mb-1">Tanggal Masuk</label><input type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
-                                <div><label class="block text-sm text-gray-600 mb-1">Nama Supplier (Manual)</label><input type="text" placeholder="Nama CV/PT" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
-                                <div><label class="block text-sm text-gray-600 mb-1">Asal Kayu</label><input type="text" placeholder="Hutan Blora" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
+                                <div><label class="block text-sm text-emerald-700 font-semibold mb-1">No. Surat Jalan</label><input type="text" name="kode_transaksi" placeholder="SJ-IN-..." class="w-full border border-emerald-300 bg-emerald-50/30 rounded-lg px-3 py-2 text-sm outline-none" required></div>
+                                <div><label class="block text-sm text-gray-600 mb-1">Tanggal Masuk</label><input type="datetime-local" name="waktu_masuk" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
+                                <div><label class="block text-sm text-gray-600 mb-1">Nama Supplier</label><input type="text" name="asal_supplier" placeholder="Nama CV/PT" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
                             </div>
                             <div class="space-y-4">
                                 <h3 class="font-medium text-gray-800 border-b pb-2">Detail Kayu</h3>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-sm text-gray-600 mb-1">Jenis Kayu</label><select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none"><option>Jati</option><option>Mahoni</option></select></div>
-                                    <div><label class="block text-sm text-gray-600 mb-1">Ukuran (Size)</label><select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none"><option>Besar</option><option>Sedang</option></select></div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Pilih Kayu</label>
+                                    <select name="kayu_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
+                                        <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
+                                        @foreach($daftarKayu as $kayu)
+                                            <option value="{{ $kayu->id }}">{{ $kayu->jenis_kayu }} - {{ $kayu->dimensi }} (Stok saat ini: {{ $kayu->stok }})</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div><label class="block text-sm text-gray-600 mb-1">Dimensi (cm)</label><input type="text" placeholder="400x20x15" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-sm text-gray-600 mb-1">Jumlah</label><input type="number" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
-                                    <div><label class="block text-sm text-gray-600 mb-1">Satuan</label><select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none"><option>Batang</option><option>Lembar</option></select></div>
-                                </div>
+                                <div><label class="block text-sm text-gray-600 mb-1">Jumlah Masuk</label><input type="number" name="jumlah" min="1" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
                             </div>
                         </div>
                         <div class="pt-4 border-t border-gray-100 flex justify-end">
@@ -218,32 +264,65 @@
             </div>
 
             <div id="tab-keluar" class="tab-content hidden">
-                <div class="max-w-5xl bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
-                    <div class="w-full md:w-1/2 p-6 bg-amber-50/30 border-b md:border-b-0 md:border-r border-gray-200">
-                        <h2 class="font-semibold text-amber-800 text-lg flex items-center gap-2 mb-6"><i data-lucide="arrow-up-from-line" class="w-5 h-5"></i> Form Pengeluaran Kayu</h2>
-                        <form class="space-y-5" onsubmit="event.preventDefault(); alert('Surat Jalan Berhasil Disubmit!');">
-                            <div class="space-y-3 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                                <div><label class="block text-sm text-amber-700 font-semibold mb-1">No. Surat Jalan (Keluar)</label><input type="text" placeholder="SJ-OUT-..." class="w-full border border-amber-300 bg-amber-50/30 rounded-lg px-3 py-2 text-sm outline-none" required></div>
-                                <div><label class="block text-sm text-gray-600 mb-1">Tanggal Keluar</label><input type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
-                                <div><label class="block text-sm text-gray-600 mb-1">Nama Customer</label><input type="text" placeholder="Bpk. Budi" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
-                            </div>
-                            <div class="space-y-3 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                                <h3 class="font-medium text-gray-800 flex items-center gap-2"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Pilih Kayu</h3>
-                                <div><label class="block text-sm text-gray-600 mb-1">Pilih dari Stok</label><select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none"><option>Jati - Size Besar (400x20x15) - Sisa: 150</option></select></div>
-                                <div class="flex gap-2 items-end">
-                                    <div class="flex-1"><label class="block text-sm text-gray-600 mb-1">Jumlah</label><input type="number" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none"></div>
-                                    <button type="button" onclick="alert('Di Laravel nanti ini akan masuk ke tabel temporary / session sebelum disubmit')" class="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-gray-900 transition-colors">Tambah Ke Keranjang</button>
+                <div class="max-w-4xl bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="bg-amber-50 px-6 py-4 border-b border-amber-100">
+                        <h2 class="font-semibold text-amber-800 text-lg flex items-center gap-2">
+                            <i data-lucide="arrow-up-from-line" class="w-5 h-5"></i> Form Pengeluaran Kayu (Keluar)
+                        </h2>
+                    </div>
+                    
+                    <form action="{{ route('barang-keluar.store') }}" method="POST" class="p-6 space-y-6">
+                        @csrf <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <h3 class="font-medium text-gray-800 border-b pb-2">Informasi Pengeluaran</h3>
+                                
+                                <div>
+                                    <label class="block text-sm text-amber-700 font-semibold mb-1">No. Surat Jalan (Keluar)</label>
+                                    <input type="text" name="kode_transaksi" placeholder="SJ-OUT-..." class="w-full border border-amber-300 bg-amber-50/30 rounded-lg px-3 py-2 text-sm outline-none focus:border-amber-500" required>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Tanggal & Waktu Keluar</label>
+                                    <input type="datetime-local" name="waktu_keluar" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Nama Customer</label>
+                                    <input type="text" name="customer" placeholder="Bpk. Budi" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
                                 </div>
                             </div>
-                            <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-bold shadow-md">Submit Surat Jalan Keluar</button>
-                        </form>
-                    </div>
-                    <div class="w-full md:w-1/2 p-6 bg-white">
-                        <h3 class="font-medium text-gray-800 mb-4 border-b pb-2">Daftar Kayu yang Akan Dikeluarkan</h3>
-                        <div class="h-full flex items-center justify-center text-sm text-gray-400 border-2 border-dashed border-gray-200 rounded-lg min-h-[200px]">
-                            Keranjang masih kosong. Pilih kayu di sebelah kiri.
+
+                            <div class="space-y-4">
+                                <h3 class="font-medium text-gray-800 border-b pb-2 flex items-center gap-2">
+                                    <i data-lucide="shopping-cart" class="w-4 h-4"></i> Pilih Kayu
+                                </h3>
+                                
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Pilih dari Stok</label>
+                                    <select name="kayu_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
+                                        <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
+                                        @foreach($daftarKayu as $kayu)
+                                            <option value="{{ $kayu->id }}">
+                                                {{ $kayu->jenis_kayu }} ({{ $kayu->dimensi }}) - Sisa Stok: {{ $kayu->stok }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Jumlah</label>
+                                    <input type="number" name="jumlah" min="1" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
+                                    <p class="text-xs text-gray-400 mt-1">*Pastikan jumlah tidak melebihi sisa stok.</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+                        <div class="pt-4 border-t border-gray-100 flex justify-end">
+                            <button type="submit" class="px-6 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-bold shadow-md transition-colors">
+                                Submit Surat Jalan Keluar
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
