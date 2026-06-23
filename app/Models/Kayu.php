@@ -28,4 +28,20 @@ class Kayu extends Model
     {
         return $this->hasMany(BarangKeluar::class);
     }
+
+    // Volume per batang dalam m3 jika dimensi tersimpan dalam cm (LxWxT)
+    public function getVolumePerBatangAttribute(): float
+    {
+        $parts = preg_split('/[^0-9.]+/', $this->dimensi, -1, PREG_SPLIT_NO_EMPTY);
+        if (count($parts) !== 3) {
+            return 0.0;
+        }
+
+        [$length, $width, $height] = array_map('floatval', $parts);
+        if ($length <= 0 || $width <= 0 || $height <= 0) {
+            return 0.0;
+        }
+
+        return ($length * $width * $height) / 1000000;
+    }
 }

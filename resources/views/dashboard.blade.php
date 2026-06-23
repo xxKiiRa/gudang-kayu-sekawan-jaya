@@ -246,14 +246,24 @@
                                 <h3 class="font-medium text-gray-800 border-b pb-2">Detail Kayu</h3>
                                 <div>
                                     <label class="block text-sm text-gray-600 mb-1">Pilih Kayu</label>
-                                    <select name="kayu_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
+                                    <select name="kayu_id" id="kayuSelectMasuk" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required onchange="loadKayuDataMasuk(this.value)">
                                         <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
                                         @foreach($daftarKayu as $kayu)
                                             <option value="{{ $kayu->id }}">{{ $kayu->jenis_kayu }} - {{ $kayu->dimensi }} (Stok saat ini: {{ $kayu->stok }})</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                <div><label class="block text-sm text-gray-600 mb-1">Jumlah Masuk</label><input type="number" name="jumlah" min="1" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
+                                <div id="volumeInfoMasuk" class="hidden bg-blue-50 border border-blue-200 p-3 rounded-lg text-sm space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Volume per Batang:</span>
+                                        <span class="font-semibold text-blue-700" id="volumePerBatangMasuk">0 m³</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total Volume:</span>
+                                        <span class="font-semibold text-blue-700" id="totalVolumeMasuk">0 m³</span>
+                                    </div>
+                                </div>
+                                <div><label class="block text-sm text-gray-600 mb-1">Jumlah Masuk</label><input type="number" name="jumlah" id="jumlahMasuk" step="0.01" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeMasuk()" required></div>
                             </div>
                         </div>
                         <div class="pt-4 border-t border-gray-100 flex justify-end">
@@ -299,7 +309,7 @@
                                 
                                 <div>
                                     <label class="block text-sm text-gray-600 mb-1">Pilih dari Stok</label>
-                                    <select name="kayu_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
+                                    <select name="kayu_id" id="kayuSelectKeluar" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required onchange="loadKayuDataKeluar(this.value)">
                                         <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
                                         @foreach($daftarKayu as $kayu)
                                             <option value="{{ $kayu->id }}">
@@ -308,10 +318,21 @@
                                         @endforeach
                                     </select>
                                 </div>
+
+                                <div id="volumeInfoKeluar" class="hidden bg-orange-50 border border-orange-200 p-3 rounded-lg text-sm space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Volume per Batang:</span>
+                                        <span class="font-semibold text-orange-700" id="volumePerBatangKeluar">0 m³</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total Volume:</span>
+                                        <span class="font-semibold text-orange-700" id="totalVolumeKeluar">0 m³</span>
+                                    </div>
+                                </div>
                                 
                                 <div>
                                     <label class="block text-sm text-gray-600 mb-1">Jumlah</label>
-                                    <input type="number" name="jumlah" min="1" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
+                                    <input type="number" name="jumlah" id="jumlahKeluar" step="0.01" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeKeluar()" required>
                                     <p class="text-xs text-gray-400 mt-1">*Pastikan jumlah tidak melebihi sisa stok.</p>
                                 </div>
                             </div>
@@ -328,35 +349,60 @@
 
             <div id="tab-laporan" class="tab-content hidden">
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col min-h-[500px]">
+                    
+                    <!-- Header Tabel -->
                     <div class="border-b border-gray-100 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <h2 class="font-semibold text-gray-800 text-lg">Laporan Riwayat Transaksi</h2>
+                        <h2 class="font-semibold text-gray-800 text-lg">Laporan Riwayat Transaksi Keseluruhan</h2>
                         <div class="flex gap-2 w-full md:w-auto">
-                            <button class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border border-emerald-200"><i data-lucide="download" class="w-4 h-4"></i> Excel</button>
-                            <button class="bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border border-red-200"><i data-lucide="download" class="w-4 h-4"></i> PDF</button>
+                            <a href="{{ route('laporan.excel') }}" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border border-emerald-200">
+                                <i data-lucide="download" class="w-4 h-4"></i> Excel
+                            </a>
+                            <a href="{{ route('laporan.pdf') }}" class="bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border border-red-200">
+                                <i data-lucide="printer" class="w-4 h-4"></i> Cetak PDF
+                            </a>
                         </div>
                     </div>
+
+                    <!-- Tabel Laporan -->
                     <div class="p-0 overflow-x-auto">
                         <table class="w-full text-left text-sm whitespace-nowrap">
                             <thead class="bg-gray-50 text-gray-600 border-b border-gray-200">
                                 <tr>
                                     <th class="px-6 py-3 font-medium">No. Surat Jalan</th>
-                                    <th class="px-6 py-3 font-medium">Tanggal</th>
+                                    <th class="px-6 py-3 font-medium">Tanggal & Waktu</th>
                                     <th class="px-6 py-3 font-medium">Tipe</th>
                                     <th class="px-6 py-3 font-medium">Kayu & Ukuran</th>
-                                    <th class="px-6 py-3 font-medium">Customer/Supplier</th>
+                                    <th class="px-6 py-3 font-medium">Jumlah</th>
+                                    <th class="px-6 py-3 font-medium">Customer / Supplier</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
+                                @forelse($laporanTransaksi as $laporan)
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-3 font-semibold text-gray-800">SJ-IN-001</td>
-                                    <td class="px-6 py-3 text-gray-600">2026-04-07</td>
-                                    <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700">Masuk</span></td>
-                                    <td class="px-6 py-3 text-gray-800">Jati (Besar) x 50</td>
-                                    <td class="px-6 py-3 text-gray-600">CV. Kayu Makmur</td>
+                                    <td class="px-6 py-3 font-semibold text-gray-800">{{ $laporan->kode_transaksi }}</td>
+                                    <td class="px-6 py-3 text-gray-600">{{ \Carbon\Carbon::parse($laporan->waktu)->format('d M Y, H:i') }}</td>
+                                    <td class="px-6 py-3">
+                                        @if($laporan->tipe == 'masuk')
+                                            <span class="px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">Barang Masuk</span>
+                                        @else
+                                            <span class="px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">Barang Keluar</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-3 text-gray-800">{{ $laporan->kayu->jenis_kayu }} ({{ $laporan->kayu->ukuran }})</td>
+                                    <td class="px-6 py-3 text-gray-800 font-medium">{{ $laporan->jumlah }}</td>
+                                    <td class="px-6 py-3 text-gray-600">{{ $laporan->pihak_terkait }}</td>
                                 </tr>
+                                @empty
+                                    <tr>
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                        Belum ada riwayat transaksi di sistem.
+                                    </td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
+                    
                 </div>
             </div>
 
@@ -367,7 +413,67 @@
         // Menginisialisasi Ikon Lucide
         lucide.createIcons();
 
-        // Fungsi untuk mengganti Tab Menu
+        // ========== VARIABEL GLOBAL UNTUK MENYIMPAN DATA KAYU ==========
+        let kayuDataMasuk = null;
+        let kayuDataKeluar = null;
+
+        // ========== FUNGSI UNTUK FORM BARANG MASUK ==========
+        function loadKayuDataMasuk(kayuId) {
+            if (!kayuId) {
+                document.getElementById('volumeInfoMasuk').classList.add('hidden');
+                kayuDataMasuk = null;
+                return;
+            }
+
+            fetch(`/api/kayu/${kayuId}`)
+                .then(response => response.json())
+                .then(data => {
+                    kayuDataMasuk = data;
+                    document.getElementById('volumePerBatangMasuk').textContent = 
+                        data.volume_per_batang.toFixed(3) + ' m³';
+                    document.getElementById('volumeInfoMasuk').classList.remove('hidden');
+                    calculateVolumeMasuk();
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function calculateVolumeMasuk() {
+            if (!kayuDataMasuk) return;
+            
+            const jumlah = parseFloat(document.getElementById('jumlahMasuk').value) || 0;
+            const totalVolume = jumlah * kayuDataMasuk.volume_per_batang;
+            document.getElementById('totalVolumeMasuk').textContent = totalVolume.toFixed(3) + ' m³';
+        }
+
+        // ========== FUNGSI UNTUK FORM BARANG KELUAR ==========
+        function loadKayuDataKeluar(kayuId) {
+            if (!kayuId) {
+                document.getElementById('volumeInfoKeluar').classList.add('hidden');
+                kayuDataKeluar = null;
+                return;
+            }
+
+            fetch(`/api/kayu/${kayuId}`)
+                .then(response => response.json())
+                .then(data => {
+                    kayuDataKeluar = data;
+                    document.getElementById('volumePerBatangKeluar').textContent = 
+                        data.volume_per_batang.toFixed(3) + ' m³';
+                    document.getElementById('volumeInfoKeluar').classList.remove('hidden');
+                    calculateVolumeKeluar();
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function calculateVolumeKeluar() {
+            if (!kayuDataKeluar) return;
+            
+            const jumlah = parseFloat(document.getElementById('jumlahKeluar').value) || 0;
+            const totalVolume = jumlah * kayuDataKeluar.volume_per_batang;
+            document.getElementById('totalVolumeKeluar').textContent = totalVolume.toFixed(3) + ' m³';
+        }
+
+        // ========== FUNGSI UNTUK MENGGANTI TAB MENU ==========
         function switchTab(tabId) {
             // Sembunyikan semua konten tab
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -403,7 +509,7 @@
             }
         }
 
-        // Fungsi untuk membuka/menutup Sidebar di Layar HP (Mobile)
+        // ========== FUNGSI UNTUK MEMBUKA/MENUTUP SIDEBAR ==========
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
