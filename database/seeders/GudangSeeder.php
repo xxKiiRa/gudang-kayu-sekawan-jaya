@@ -16,21 +16,22 @@ class GudangSeeder extends Seeder
         $jati = Kayu::create([
             'jenis_kayu' => 'Jati',
             'dimensi'    => '400x20x15',
-            'ukuran'     => 'Besar',
-            'stok'       => 150, // Sesuai data di dashboard sebelumnya
+            'panjang'     => 'Besar',
+            'stok'       => 150,
         ]);
 
         $mahoni = Kayu::create([
             'jenis_kayu' => 'Mahoni',
             'dimensi'    => '300x15x10',
-            'ukuran'     => 'Sedang',
+            'panjang'     => 'Sedang',
             'stok'       => 85,
         ]);
 
-        $sengon = Kayu::create([
-            'jenis_kayu' => 'Sengon',
+        // SUDAH DIGANTI MENJADI AKASIA
+        $akasia = Kayu::create([
+            'jenis_kayu' => 'Akasia',
             'dimensi'    => '200x10x5',
-            'ukuran'     => 'Sedang',
+            'panjang'     => 'Sedang',
             'stok'       => 320,
         ]);
 
@@ -45,7 +46,7 @@ class GudangSeeder extends Seeder
 
         // 3. Masukkan Data Riwayat Barang Keluar
         BarangKeluar::create([
-            'kayu_id'        => $sengon->id,
+            'kayu_id'        => $akasia->id, // SUDAH DISESUAIKAN MEMANGGIL AKASIA
             'jumlah'         => 20,
             'customer'       => 'Bpk. Budi',
             'waktu_keluar'   => Carbon::parse('2026-04-07 10:15:00'),

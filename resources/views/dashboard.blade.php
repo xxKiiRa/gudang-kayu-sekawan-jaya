@@ -138,8 +138,8 @@
                                 <thead class="bg-gray-50 text-gray-600">
                                     <tr>
                                         <th class="px-6 py-3 font-medium">Jenis Kayu</th>
-                                        <th class="px-6 py-3 font-medium">Dimensi (PxLxT)</th>
-                                        <th class="px-6 py-3 font-medium">Ukuran (Size)</th>
+                                        <th class="px-6 py-3 font-medium">Dimensi</th>
+                                        <th class="px-6 py-3 font-medium">Panjang</th>
                                         <th class="px-6 py-3 font-medium text-right">Sisa Stok</th>
                                     </tr>
                                 </thead>
@@ -149,10 +149,9 @@
                                         <td class="px-6 py-3 font-medium text-gray-800">{{ $kayu->jenis_kayu }}</td>
                                         <td class="px-6 py-3 text-gray-600">{{ $kayu->dimensi }}</td>
                                         <td class="px-6 py-3">
-                                            <span class="px-2 py-1 rounded text-xs font-medium border 
-                                                {{ $kayu->ukuran == 'Besar' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-teal-50 text-teal-700 border-teal-200' }}">
-                                                {{ $kayu->ukuran }}
-                                            </span>
+                                            <span class="px-2 py-1 rounded text-xs font-medium border bg-teal-50 text-teal-700 border-teal-200">
+                                                {{ $kayu->panjang }}
+                                                </span>
                                         </td>
                                         <td class="px-6 py-3 text-right">
                                             <span class="font-semibold {{ $kayu->stok < 10 ? 'text-red-600' : 'text-gray-800' }}">{{ $kayu->stok }}</span>
@@ -181,7 +180,7 @@
                             @endif
                             
                             <div>
-                                <p class="text-sm font-medium text-gray-800">{{ $log->kayu->jenis_kayu }} ({{ $log->kayu->ukuran }}) x {{ $log->jumlah }}</p>
+                                <p class="text-sm font-medium text-gray-800">{{ $log->kayu->jenis_kayu }} ({{ $log->kayu->panjang }}) x {{ $log->jumlah }}</p>
                                 <p class="text-xs text-gray-500 mt-0.5">
                                     {{ $log->tipe == 'masuk' ? 'Supplier: ' . $log->asal_supplier : 'Customer: ' . $log->customer }}
                                 </p>
@@ -208,7 +207,7 @@
                                 <h4 class="font-semibold text-yellow-800 text-sm flex items-center gap-2 mb-2"><i data-lucide="alert-circle" class="w-4 h-4"></i> Petunjuk Migrasi Data Lama</h4>
                                 <ul class="text-sm text-yellow-700 space-y-1.5 list-disc pl-5">
                                     <li>Disarankan hanya meng-import <b>Saldo Stok Awal</b> saat ini.</li>
-                                    <li>Format kolom wajib: Tanggal, Tipe, Jenis, Ukuran, Dimensi, Jumlah, Relasi, Asal Kayu.</li>
+                                    <li>Format kolom wajib: Tanggal, Tipe, Jenis, Panjang, Dimensi, Jumlah, Relasi, Asal Kayu.</li>
                                 </ul>
                                 <button class="mt-3 text-sm text-blue-600 hover:text-blue-800 font-medium underline flex items-center gap-1"><i data-lucide="download" class="w-3 h-3"></i> Unduh Template Excel (.xlsx)</button>
                             </div>
@@ -245,25 +244,34 @@
                             <div class="space-y-4">
                                 <h3 class="font-medium text-gray-800 border-b pb-2">Detail Kayu</h3>
                                 <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Pilih Kayu</label>
-                                    <select name="kayu_id" id="kayuSelectMasuk" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required onchange="loadKayuDataMasuk(this.value)">
+                                    <label class="block text-sm text-gray-600 mb-1">Pilih Jenis Kayu</label>
+                                    <select name="kayu_id" id="kayuSelectMasuk" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
                                         <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
                                         @foreach($daftarKayu as $kayu)
-                                            <option value="{{ $kayu->id }}">{{ $kayu->jenis_kayu }} - {{ $kayu->dimensi }} (Stok saat ini: {{ $kayu->stok }})</option>
+                                            <option value="{{ $kayu->id }}">{{ $kayu->jenis_kayu }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                <div id="volumeInfoMasuk" class="hidden bg-blue-50 border border-blue-200 p-3 rounded-lg text-sm space-y-2">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Volume per Batang:</span>
-                                        <span class="font-semibold text-blue-700" id="volumePerBatangMasuk">0 m³</span>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-sm text-gray-600 mb-1">Panjang (m)</label>
+                                        <input type="number" name="panjang" id="panjangMasuk" step="0.01" placeholder="0.00" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeMasuk()" required>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Total Volume:</span>
-                                        <span class="font-semibold text-blue-700" id="totalVolumeMasuk">0 m³</span>
+                                    <div>
+                                        <label class="block text-sm text-gray-600 mb-1">Diameter (cm)</label>
+                                        <input type="number" name="diameter" id="diameterMasuk" step="0.1" placeholder="0.0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeMasuk()" required>
                                     </div>
                                 </div>
-                                <div><label class="block text-sm text-gray-600 mb-1">Jumlah Masuk</label><input type="number" name="jumlah" id="jumlahMasuk" step="0.01" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeMasuk()" required></div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Jumlah Masuk (Batang/Lembar)</label>
+                                    <input type="number" name="jumlah" id="jumlahMasuk" step="1" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeMasuk()" required>
+                                </div>
+                                <div id="volumeInfoMasuk" class="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-700 font-medium">Total Volume:</span>
+                                        <span class="text-lg font-bold text-blue-700" id="totalVolumeMasukDisplay">0.0000 m³</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="pt-4 border-t border-gray-100 flex justify-end">
@@ -308,32 +316,37 @@
                                 </h3>
                                 
                                 <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Pilih dari Stok</label>
-                                    <select name="kayu_id" id="kayuSelectKeluar" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required onchange="loadKayuDataKeluar(this.value)">
+                                    <label class="block text-sm text-gray-600 mb-1">Pilih Jenis Kayu</label>
+                                    <select name="kayu_id" id="kayuSelectKeluar" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
                                         <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
                                         @foreach($daftarKayu as $kayu)
-                                            <option value="{{ $kayu->id }}">
-                                                {{ $kayu->jenis_kayu }} ({{ $kayu->dimensi }}) - Sisa Stok: {{ $kayu->stok }}
-                                            </option>
+                                            <option value="{{ $kayu->id }}">{{ $kayu->jenis_kayu }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
-                                <div id="volumeInfoKeluar" class="hidden bg-orange-50 border border-orange-200 p-3 rounded-lg text-sm space-y-2">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Volume per Batang:</span>
-                                        <span class="font-semibold text-orange-700" id="volumePerBatangKeluar">0 m³</span>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-sm text-gray-600 mb-1">Panjang (m)</label>
+                                        <input type="number" name="panjang" id="panjangKeluar" step="0.01" placeholder="0.00" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeKeluar()" required>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Total Volume:</span>
-                                        <span class="font-semibold text-orange-700" id="totalVolumeKeluar">0 m³</span>
+                                    <div>
+                                        <label class="block text-sm text-gray-600 mb-1">Diameter (cm)</label>
+                                        <input type="number" name="diameter" id="diameterKeluar" step="0.1" placeholder="0.0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeKeluar()" required>
                                     </div>
                                 </div>
                                 
                                 <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Jumlah</label>
-                                    <input type="number" name="jumlah" id="jumlahKeluar" step="0.01" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeKeluar()" required>
+                                    <label class="block text-sm text-gray-600 mb-1">Jumlah Keluar (Batang/Lembar)</label>
+                                    <input type="number" name="jumlah" id="jumlahKeluar" step="1" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeKeluar()" required>
                                     <p class="text-xs text-gray-400 mt-1">*Pastikan jumlah tidak melebihi sisa stok.</p>
+                                </div>
+
+                                <div id="volumeInfoKeluar" class="bg-orange-50 border border-orange-200 p-3 rounded-lg">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-700 font-medium">Total Volume:</span>
+                                        <span class="text-lg font-bold text-orange-700" id="totalVolumeKeluarDisplay">0.0000 m³</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -371,7 +384,7 @@
                                     <th class="px-6 py-3 font-medium">No. Surat Jalan</th>
                                     <th class="px-6 py-3 font-medium">Tanggal & Waktu</th>
                                     <th class="px-6 py-3 font-medium">Tipe</th>
-                                    <th class="px-6 py-3 font-medium">Kayu & Ukuran</th>
+                                    <th class="px-6 py-3 font-medium">Kayu & Panjang</th>
                                     <th class="px-6 py-3 font-medium">Jumlah</th>
                                     <th class="px-6 py-3 font-medium">Customer / Supplier</th>
                                 </tr>
@@ -388,7 +401,7 @@
                                             <span class="px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">Barang Keluar</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-3 text-gray-800">{{ $laporan->kayu->jenis_kayu }} ({{ $laporan->kayu->ukuran }})</td>
+                                    <td class="px-6 py-3 text-gray-800">{{ $laporan->kayu->jenis_kayu }} ({{ $laporan->kayu->panjang }})</td>
                                     <td class="px-6 py-3 text-gray-800 font-medium">{{ $laporan->jumlah }}</td>
                                     <td class="px-6 py-3 text-gray-600">{{ $laporan->pihak_terkait }}</td>
                                 </tr>
@@ -413,64 +426,43 @@
         // Menginisialisasi Ikon Lucide
         lucide.createIcons();
 
-        // ========== VARIABEL GLOBAL UNTUK MENYIMPAN DATA KAYU ==========
-        let kayuDataMasuk = null;
-        let kayuDataKeluar = null;
-
-        // ========== FUNGSI UNTUK FORM BARANG MASUK ==========
-        function loadKayuDataMasuk(kayuId) {
-            if (!kayuId) {
-                document.getElementById('volumeInfoMasuk').classList.add('hidden');
-                kayuDataMasuk = null;
-                return;
-            }
-
-            fetch(`/api/kayu/${kayuId}`)
-                .then(response => response.json())
-                .then(data => {
-                    kayuDataMasuk = data;
-                    document.getElementById('volumePerBatangMasuk').textContent = 
-                        data.volume_per_batang.toFixed(3) + ' m³';
-                    document.getElementById('volumeInfoMasuk').classList.remove('hidden');
-                    calculateVolumeMasuk();
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
+        // ========== FUNGSI UNTUK MENGHITUNG VOLUME OTOMATIS ==========
+        // Volume silinder = π × (d/2)² × L × jumlah
+        // d dalam cm, L dalam m
         function calculateVolumeMasuk() {
-            if (!kayuDataMasuk) return;
-            
-            const jumlah = parseFloat(document.getElementById('jumlahMasuk').value) || 0;
-            const totalVolume = jumlah * kayuDataMasuk.volume_per_batang;
-            document.getElementById('totalVolumeMasuk').textContent = totalVolume.toFixed(3) + ' m³';
-        }
+            const panjang = parseFloat(document.getElementById('panjangMasuk').value) || 0;
+            const diameter = parseFloat(document.getElementById('diameterMasuk').value) || 0;
+            const jumlah = parseInt(document.getElementById('jumlahMasuk').value) || 0;
 
-        // ========== FUNGSI UNTUK FORM BARANG KELUAR ==========
-        function loadKayuDataKeluar(kayuId) {
-            if (!kayuId) {
-                document.getElementById('volumeInfoKeluar').classList.add('hidden');
-                kayuDataKeluar = null;
+            if (panjang <= 0 || diameter <= 0 || jumlah <= 0) {
+                document.getElementById('totalVolumeMasukDisplay').textContent = '0.0000 m³';
                 return;
             }
 
-            fetch(`/api/kayu/${kayuId}`)
-                .then(response => response.json())
-                .then(data => {
-                    kayuDataKeluar = data;
-                    document.getElementById('volumePerBatangKeluar').textContent = 
-                        data.volume_per_batang.toFixed(3) + ' m³';
-                    document.getElementById('volumeInfoKeluar').classList.remove('hidden');
-                    calculateVolumeKeluar();
-                })
-                .catch(error => console.error('Error:', error));
+            const diameterInMeters = diameter / 100; // cm ke meter
+            const radiusInMeters = diameterInMeters / 2;
+            const volumePerBatang = Math.PI * (radiusInMeters ** 2) * panjang;
+            const totalVolume = volumePerBatang * jumlah;
+
+            document.getElementById('totalVolumeMasukDisplay').textContent = totalVolume.toFixed(4) + ' m³';
         }
 
         function calculateVolumeKeluar() {
-            if (!kayuDataKeluar) return;
-            
-            const jumlah = parseFloat(document.getElementById('jumlahKeluar').value) || 0;
-            const totalVolume = jumlah * kayuDataKeluar.volume_per_batang;
-            document.getElementById('totalVolumeKeluar').textContent = totalVolume.toFixed(3) + ' m³';
+            const panjang = parseFloat(document.getElementById('panjangKeluar').value) || 0;
+            const diameter = parseFloat(document.getElementById('diameterKeluar').value) || 0;
+            const jumlah = parseInt(document.getElementById('jumlahKeluar').value) || 0;
+
+            if (panjang <= 0 || diameter <= 0 || jumlah <= 0) {
+                document.getElementById('totalVolumeKeluarDisplay').textContent = '0.0000 m³';
+                return;
+            }
+
+            const diameterInMeters = diameter / 100; // cm ke meter
+            const radiusInMeters = diameterInMeters / 2;
+            const volumePerBatang = Math.PI * (radiusInMeters ** 2) * panjang;
+            const totalVolume = volumePerBatang * jumlah;
+
+            document.getElementById('totalVolumeKeluarDisplay').textContent = totalVolume.toFixed(4) + ' m³';
         }
 
         // ========== FUNGSI UNTUK MENGGANTI TAB MENU ==========

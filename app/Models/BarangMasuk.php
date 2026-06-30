@@ -12,6 +12,8 @@ class BarangMasuk extends Model
     protected $fillable = [
         'kayu_id',
         'jumlah',
+        'panjang',
+        'diameter',
         'asal_supplier',
         'waktu_masuk',
         'kode_transaksi',
@@ -21,5 +23,21 @@ class BarangMasuk extends Model
     public function kayu()
     {
         return $this->belongsTo(Kayu::class);
+    }
+
+    // Hitung volume berdasarkan panjang (m), diameter (cm), dan jumlah
+    // Volume silinder = π × (d/2)² × L × jumlah
+    // d dalam cm, L dalam m
+    public function getVolumeAttribute(): float
+    {
+        if (!$this->panjang || !$this->diameter || !$this->jumlah) {
+            return 0.0;
+        }
+
+        $diameterInMeters = $this->diameter / 100; // cm ke meter
+        $radiusInMeters = $diameterInMeters / 2;
+        $volumePerBatang = pi() * ($radiusInMeters ** 2) * $this->panjang;
+        
+        return $volumePerBatang * $this->jumlah;
     }
 }

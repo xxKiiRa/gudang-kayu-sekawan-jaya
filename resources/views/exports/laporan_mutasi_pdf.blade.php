@@ -2,10 +2,16 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Mutasi Hutan</title>
     <style>
         /* Pengaturan Dasar Kertas & Font */
-        body { font-family: Arial, Helvetica, sans-serif; font-size: 10px; }
+        body { 
+            font-family: Arial, Helvetica, sans-serif; 
+            font-size: 10px; 
+            margin: 0;
+            padding: 20px;
+        }
         
         /* Tabel Kop & Tanda Tangan (Tanpa Garis) */
         .table-no-border { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
@@ -20,9 +26,35 @@
         .judul-dokumen { font-size: 14px; font-weight: bold; text-decoration: underline; text-align: center; }
         .text-left { text-align: left !important; }
         .bold { font-weight: bold; }
+
+        /* Print Styling */
+        @media print {
+            body { margin: 0; padding: 0; }
+            .print-button { display: none; }
+            .page-break { page-break-after: always; }
+        }
+
+        /* Print Button */
+        .print-button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .print-button:hover {
+            background-color: #2563eb;
+        }
     </style>
 </head>
 <body>
+
+    <button class="print-button" onclick="window.print();">🖨️ Cetak / Print to PDF</button>
 
     <table class="table-no-border">
         <tr>

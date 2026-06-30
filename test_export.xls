@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 11px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid black; padding: 8px; text-align: center; }
+        th { background-color: #f0f0f0; font-weight: bold; }
+        .text-left { text-align: left; }
+        .judul { font-size: 14px; font-weight: bold; margin: 10px 0; }
+        .header-section { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <div class="judul">LAPORAN MUTASI HASIL HUTAN KAYU</div>
+        <div>UD. SEKAWAN JAYA</div>
+        <div>Periode: June 2026</div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th class="text-left">Jenis Kayu</th>
+                <th colspan="2">Persediaan Awal</th>
+                <th colspan="2">Masuk</th>
+                <th colspan="2">Keluar</th>
+                <th colspan="2">Diolah Sendiri</th>
+                <th colspan="2">Penggunaan Lain</th>
+                <th colspan="2">Persediaan Akhir</th>
+                <th>Keterangan</th>
+            </tr>
+            <tr>
+                <th colspan="2"></th>
+                <th>Btg</th>
+                <th>m³</th>
+                <th>Btg</th>
+                <th>m³</th>
+                <th>Btg</th>
+                <th>m³</th>
+                <th>Btg</th>
+                <th>m³</th>
+                <th>Btg</th>
+                <th>m³</th>
+                <th>Btg</th>
+                <th>m³</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody><tr>
+                <td>1</td>
+                <td class="text-left">Jati</td>
+                <td>150</td>
+                <td>18,000</td>
+                <td>0</td>
+                <td>-</td>
+                <td>0</td>
+                <td>-</td>
+                <td>0</td>
+                <td>-</td>
+                <td>0</td>
+                <td>0</td>
+                <td>150</td>
+                <td>18,000</td>
+                <td></td>
+            </tr><tr>
+                <td>2</td>
+                <td class="text-left">Mahoni</td>
+                <td>85</td>
+                <td>3,825</td>
+                <td>0</td>
+                <td>-</td>
+                <td>0</td>
+                <td>-</td>
+                <td>0</td>
+                <td>-</td>
+                <td>0</td>
+                <td>0</td>
+                <td>85</td>
+                <td>3,825</td>
+                <td></td>
+            </tr><tr>
+                <td>3</td>
+                <td class="text-left">Sengon</td>
+                <td>320</td>
+                <td>3,200</td>
+                <td>0</td>
+                <td>-</td>
+                <td>0</td>
+                <td>-</td>
+                <td>0</td>
+                <td>-</td>
+                <td>0</td>
+                <td>0</td>
+                <td>320</td>
+                <td>3,200</td>
+                <td></td>
+            </tr><tr style="font-weight: bold; background-color: #f9f9f9;">
+            <td colspan="2">TOTAL</td>
+            <td>555</td>
+            <td>-</td>
+            <td>0</td>
+            <td>-</td>
+            <td>0</td>
+            <td>-</td>
+            <td>0</td>
+            <td>-</td>
+            <td>0</td>
+            <td>-</td>
+            <td>555</td>
+            <td>-</td>
+            <td></td>
+        </tr>        </tbody>
+    </table>
+</body>
+</html>

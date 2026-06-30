@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('jenis_kayu'); // Contoh: Jati, Mahoni, Sengon
             $table->string('dimensi');    // Contoh: 400x20x15
-            $table->string('ukuran');     // Contoh: Besar, Sedang, Kecil
+            $table->string('panjang'); 
             $table->integer('stok')->default(0); // Default 0 saat pertama kali input
             $table->timestamps();
         });
