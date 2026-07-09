@@ -2,55 +2,101 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Kayu;
-use App\Models\BarangMasuk;
 use App\Models\BarangKeluar;
+use App\Models\BarangMasuk;
+use App\Models\Kayu;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
+/**
+ * Data contoh yang realistis untuk menguji Laporan Mutasi.
+ *
+ * Setiap transaksi punya panjang (m) & diameter (cm) sehingga volume terhitung
+ * otomatis dan tidak nol. Ada transaksi BULAN LALU (untuk membentuk "Persediaan
+ * Bulan Lalu") dan BULAN INI (perolehan & penggunaan), agar laporan mutasi
+ * benar-benar menampilkan alur saldo antar bulan.
+ *
+ * Catatan: stok pada master di-set 0, lalu dibentuk sepenuhnya oleh transaksi
+ * di bawah, supaya angka stok konsisten dengan riwayat.
+ */
 class GudangSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Masukkan Data Master Kayu
+        $bulanLalu = Carbon::now()->subMonthNoOverflow()->startOfMonth()->addDays(4);
+        $bulanIni  = Carbon::now()->startOfMonth()->addDays(6);
+
+        // ----------------------------- MASTER KAYU -----------------------------
         $jati = Kayu::create([
             'jenis_kayu' => 'Jati',
-            'dimensi'    => '400x20x15',
-            'panjang'     => 'Besar',
-            'stok'       => 150,
+            'dimensi'    => 'Ø 20 cm',
+            'panjang'    => 'Besar',
+            'stok'       => 0,
         ]);
 
         $mahoni = Kayu::create([
             'jenis_kayu' => 'Mahoni',
-            'dimensi'    => '300x15x10',
-            'panjang'     => 'Sedang',
-            'stok'       => 85,
+            'dimensi'    => 'Ø 15 cm',
+            'panjang'    => 'Sedang',
+            'stok'       => 0,
         ]);
 
-        // SUDAH DIGANTI MENJADI AKASIA
         $akasia = Kayu::create([
             'jenis_kayu' => 'Akasia',
-            'dimensi'    => '200x10x5',
-            'panjang'     => 'Sedang',
-            'stok'       => 320,
+            'dimensi'    => 'Ø 12 cm',
+            'panjang'    => 'Sedang',
+            'stok'       => 0,
         ]);
 
-        // 2. Masukkan Data Riwayat Barang Masuk
+        // ------------------- TRANSAKSI BULAN LALU (saldo awal) ------------------
+        // Menjadi "Persediaan Akhir Bulan Lalu" di laporan bulan ini.
+        $this->masuk($jati,   120, 4.0, 22, 'CV. Kayu Makmur',  $bulanLalu, 'SJ-IN-000');
+        $this->masuk($mahoni,  30, 3.0, 14, 'CV. Rimba Jaya',   $bulanLalu, 'SJ-IN-000B');
+        $this->masuk($akasia,  10, 2.5, 12, 'UD. Hutan Lestari', $bulanLalu, 'SJ-IN-000C');
+
+        // -------------------------- TRANSAKSI BULAN INI ------------------------
+        // Perolehan (Barang Masuk)
+        $this->masuk($jati,   200, 4.0, 24, 'CV. Kayu Makmur',  (clone $bulanIni), 'SJ-IN-101');
+        $this->masuk($mahoni,  40, 3.0, 15, 'CV. Rimba Jaya',   (clone $bulanIni)->addDay(), 'SJ-IN-102');
+        $this->masuk($akasia,  25, 2.5, 13, 'UD. Hutan Lestari', (clone $bulanIni)->addDays(2), 'SJ-IN-103');
+
+        // Penggunaan - Diolah Sendiri (Barang Keluar)
+        $this->keluar($jati,  180, 4.0, 23, 'diolah_sendiri', 'Produksi Mebel',   (clone $bulanIni)->addDays(3), 'SJ-OUT-201');
+        $this->keluar($mahoni, 15, 3.0, 14, 'diolah_sendiri', 'Produksi Kusen',   (clone $bulanIni)->addDays(3), 'SJ-OUT-202');
+        $this->keluar($akasia, 20, 2.5, 12, 'diolah_sendiri', 'Produksi Palet',   (clone $bulanIni)->addDays(4), 'SJ-OUT-203');
+
+        // Penggunaan - Penggunaan Lain (mis. dijual gelondongan / dipindahtangankan)
+        $this->keluar($jati,   10, 4.0, 22, 'penggunaan_lain', 'Bpk. Budi (log)', (clone $bulanIni)->addDays(5), 'SJ-OUT-204');
+    }
+
+    private function masuk(Kayu $kayu, int $jumlah, float $panjang, float $diameter, ?string $supplier, Carbon $waktu, string $kode): void
+    {
         BarangMasuk::create([
-            'kayu_id'        => $jati->id,
-            'jumlah'         => 150,
-            'asal_supplier'  => 'CV. Kayu Makmur',
-            'waktu_masuk'    => Carbon::parse('2026-04-07 08:30:00'),
-            'kode_transaksi' => 'SJ-IN-001',
+            'kayu_id'        => $kayu->id,
+            'jumlah'         => $jumlah,
+            'panjang'        => $panjang,
+            'diameter'       => $diameter,
+            'asal_supplier'  => $supplier,
+            'waktu_masuk'    => $waktu,
+            'kode_transaksi' => $kode,
         ]);
 
-        // 3. Masukkan Data Riwayat Barang Keluar
+        $kayu->increment('stok', $jumlah);
+    }
+
+    private function keluar(Kayu $kayu, int $jumlah, float $panjang, float $diameter, string $jenisPenggunaan, ?string $customer, Carbon $waktu, string $kode): void
+    {
         BarangKeluar::create([
-            'kayu_id'        => $akasia->id, // SUDAH DISESUAIKAN MEMANGGIL AKASIA
-            'jumlah'         => 20,
-            'customer'       => 'Bpk. Budi',
-            'waktu_keluar'   => Carbon::parse('2026-04-07 10:15:00'),
-            'kode_transaksi' => 'SJ-OUT-101',
+            'kayu_id'          => $kayu->id,
+            'jumlah'           => $jumlah,
+            'panjang'          => $panjang,
+            'diameter'         => $diameter,
+            'jenis_penggunaan' => $jenisPenggunaan,
+            'customer'         => $customer,
+            'waktu_keluar'     => $waktu,
+            'kode_transaksi'   => $kode,
         ]);
+
+        $kayu->decrement('stok', $jumlah);
     }
 }

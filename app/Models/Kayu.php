@@ -16,6 +16,10 @@ class Kayu extends Model
         'stok',
     ];
 
+    protected $casts = [
+        'stok' => 'integer',
+    ];
+
     // Relasi ke Barang Masuk
     public function barangMasuks()
     {
@@ -29,33 +33,29 @@ class Kayu extends Model
     }
 
     /**
-     * Kalkulator Otomatis Volume per Batang (m3)
-     * Menghitung volume berdasarkan Diameter (dimensi) dan Panjang kayu.
+     * CATATAN PENTING:
+     * Volume pada Laporan Mutasi TIDAK lagi diambil dari sini. Setiap transaksi
+     * (BarangMasuk / BarangKeluar) punya panjang & diameter sendiri, sehingga
+     * volume dihitung & dijumlahkan per-transaksi (lihat MutasiReportService).
+     *
+     * Accessor ini hanya untuk estimasi tampilan dashboard bila dibutuhkan, dan
+     * sudah dibuat "aman" (tidak error) meski dimensi berformat "400x20x15".
      */
     public function getVolumePerBatangAttribute(): float
     {
-        // 1. Ambil angka murni dari kolom panjang (misal "400 cm" -> 400)
-        $panjangStr = preg_replace('/[^0-9.]/', '', $this->panjang ?? '0');
-        $length = floatval($panjangStr);
+        // Ambil angka pertama dari string dimensi sebagai perkiraan diameter/sisi (cm)
+        preg_match('/\d+(\.\d+)?/', (string) $this->dimensi, $m);
+        $sisiCm = isset($m[0]) ? (float) $m[0] : 0.0;
 
-        // 2. Ambil angka murni dari kolom dimensi tunggal (misal "30 cm" -> 30)
-        $dimensiStr = preg_replace('/[^0-9.]/', '', $this->dimensi ?? '0');
-        $diameter = floatval($dimensiStr);
-
-        if ($length <= 0 || $diameter <= 0) {
+        // panjang di tabel kayus bersifat label ("Besar"/"Sedang") -> tidak dipakai
+        // untuk perhitungan. Kembalikan 0 bila data tidak memadai.
+        if ($sisiCm <= 0) {
             return 0.0;
         }
 
-        // RUMUS 1: Standar Kayu Bulat (Tabung / Lingkaran murni)
-        // Rumus asli: 1/4 * pi * D^2 * P -> (0.7854 * D^2 * P) / 1.000.000 (satuan cm ke m3)
-        return (0.7854 * pow($diameter, 2) * $length) / 1000000;
+        // Perkiraan kasar sebagai balok (sisi × sisi × 1 m). Hanya indikatif.
+        $sisiM = $sisiCm / 100;
 
-        /* ---------------------------------------------------------------------------------
-        RUMUS 2 (Alternatif): Jika UD. SEKAWAN JAYA menghitung volume sebagai balok kotak persegi 
-        (di mana Lebar = Tinggi = 30 cm), silakan aktifkan rumus di bawah ini dan hapus Rumus 1:
-        
-        return ($diameter * $diameter * $length) / 1000000;
-        ---------------------------------------------------------------------------------
-        */
+        return $sisiM * $sisiM * 1.0;
     }
 }

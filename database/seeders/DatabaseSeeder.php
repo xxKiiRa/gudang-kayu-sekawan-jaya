@@ -8,9 +8,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Panggil seeder yang baru kita buat
         $this->call([
             GudangSeeder::class,
-php artisan migrate        ]);
+        ]);
     }
 }
