@@ -11,6 +11,6 @@ class DatabaseSeeder extends Seeder
         // Panggil seeder yang baru kita buat
         $this->call([
             GudangSeeder::class,
-php artisan migrate        ]);
+      ]);
     }
 }
