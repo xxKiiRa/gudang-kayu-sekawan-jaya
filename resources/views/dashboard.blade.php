@@ -47,6 +47,27 @@
                 </button>
             </nav>
         </div>
+
+        {{-- Footer sidebar: info admin yang login + tombol keluar --}}
+        <div class="p-3 border-t border-amber-800/50">
+            <div class="flex items-center gap-2 px-2 py-2 mb-1">
+                <div class="w-9 h-9 rounded-full bg-amber-700 flex items-center justify-center font-bold text-white shrink-0">
+                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                </div>
+                <div class="min-w-0">
+                    <p class="font-medium text-white text-sm truncate">{{ auth()->user()->name ?? 'Admin' }}</p>
+                    <p class="text-xs text-amber-300/70">Administrator</p>
+                </div>
+            </div>
+            {{-- Logout memakai form POST + @csrf (bukan link) demi keamanan --}}
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-amber-100 hover:bg-amber-800 transition-colors text-sm">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                    <span>Keluar</span>
+                </button>
+            </form>
+        </div>
     </aside>
 
     <div id="overlay" class="fixed inset-0 bg-black/50 z-10 hidden md:hidden" onclick="toggleSidebar()"></div>
@@ -140,7 +161,7 @@
                                         <td class="px-6 py-3 text-gray-600">{{ $kayu->dimensi }}</td>
                                         <td class="px-6 py-3">
                                             <span class="px-2 py-1 rounded text-xs font-medium border bg-teal-50 text-teal-700 border-teal-200">
-                                                {{ $kayu->panjang }}
+                                                {{ $kayu->kategori }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-3 text-right">
@@ -205,7 +226,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Kategori (opsional)</label>
-                                <input type="text" name="panjang" placeholder="Besar / Sedang / Kecil" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500">
+                                <input type="text" name="kategori" placeholder="Besar / Sedang / Kecil" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500">
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Stok Awal</label>
@@ -235,7 +256,7 @@
                                     <tr class="hover:bg-gray-50/50">
                                         <td class="px-6 py-3 font-medium text-gray-800">{{ $kayu->jenis_kayu }}</td>
                                         <td class="px-6 py-3 text-gray-600">{{ $kayu->dimensi }}</td>
-                                        <td class="px-6 py-3 text-gray-600">{{ $kayu->panjang }}</td>
+                                        <td class="px-6 py-3 text-gray-600">{{ $kayu->kategori }}</td>
                                         <td class="px-6 py-3 text-right font-semibold">{{ $kayu->stok }}</td>
                                         <td class="px-6 py-3 text-center">
                                             <form action="{{ route('kayu.destroy', $kayu->id) }}" method="POST" onsubmit="return confirm('Hapus jenis kayu {{ $kayu->jenis_kayu }} beserta seluruh riwayatnya?')">
@@ -448,6 +469,7 @@
                                     <th class="px-6 py-3 font-medium">Jenis Kayu</th>
                                     <th class="px-6 py-3 font-medium">Jumlah</th>
                                     <th class="px-6 py-3 font-medium">Customer / Supplier</th>
+                                    <th class="px-6 py-3 font-medium text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -465,10 +487,39 @@
                                     <td class="px-6 py-3 text-gray-800">{{ $laporan->kayu->jenis_kayu }}</td>
                                     <td class="px-6 py-3 text-gray-800 font-medium">{{ $laporan->jumlah }}</td>
                                     <td class="px-6 py-3 text-gray-600">{{ $laporan->pihak_terkait }}</td>
+                                    <td class="px-6 py-3">
+                                        <div class="flex items-center justify-center gap-2">
+                                            {{-- Tautan Edit & tombol Hapus diarahkan ke rute yang sesuai
+                                                 berdasarkan tipe transaksi (masuk / keluar) --}}
+                                            @if($laporan->tipe == 'masuk')
+                                                <a href="{{ route('barang-masuk.edit', $laporan->id) }}" class="text-blue-500 hover:text-blue-700" title="Edit">
+                                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                                </a>
+                                                <form action="{{ route('barang-masuk.destroy', $laporan->id) }}" method="POST" onsubmit="return confirm('Hapus transaksi masuk {{ $laporan->kode_transaksi }}? Stok akan disesuaikan.')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-500 hover:text-red-700" title="Hapus">
+                                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <a href="{{ route('barang-keluar.edit', $laporan->id) }}" class="text-blue-500 hover:text-blue-700" title="Edit">
+                                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                                </a>
+                                                <form action="{{ route('barang-keluar.destroy', $laporan->id) }}" method="POST" onsubmit="return confirm('Hapus transaksi keluar {{ $laporan->kode_transaksi }}? Stok akan dikembalikan.')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-500 hover:text-red-700" title="Hapus">
+                                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </td>
                                 </tr>
                                 @empty
                                     <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
                                         Belum ada riwayat transaksi di sistem.
                                     </td>
                                 </tr>
