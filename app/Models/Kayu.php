@@ -11,14 +11,37 @@ class Kayu extends Model
 
     protected $fillable = [
         'jenis_kayu',
-        'dimensi',
-        'kategori', // label ukuran: "Besar"/"Sedang"/"Kecil" (dulu bernama "panjang")
+        'ukuran',
+        'panjang',
+        'diameter',
         'stok',
+        'volume',
     ];
 
     protected $casts = [
         'stok' => 'integer',
+        'panjang' => 'float',
+        'diameter' => 'float',
+        'volume' => 'float',
     ];
+
+    public static function determineUkuran($panjang, $diameter)
+    {
+        if ($diameter <= 20) {
+            return 'OP';
+        } elseif ($diameter < 29) {
+            return 'OD';
+        } else {
+            return 'OGD';
+        }
+    }
+
+    public static function calculateVolume($panjang, $diameterCm, $jumlah)
+    {
+        if (! $panjang || ! $diameterCm || ! $jumlah) return 0.0;
+        $diameterMeter = $diameterCm / 100;
+        return (M_PI / 4) * ($diameterMeter ** 2) * $panjang * $jumlah;
+    }
 
     // Relasi ke Barang Masuk (satu kayu punya banyak transaksi masuk)
     public function barangMasuks()
@@ -32,22 +55,5 @@ class Kayu extends Model
         return $this->hasMany(BarangKeluar::class);
     }
 
-    /**
-     * CATATAN: Volume pada Laporan Mutasi TIDAK diambil dari sini, melainkan
-     * dijumlahkan dari volume tiap transaksi. Accessor ini hanya perkiraan kasar
-     * untuk tampilan, dibuat aman agar tidak error walau dimensi berupa teks.
-     */
-    public function getVolumePerBatangAttribute(): float
-    {
-        preg_match('/\d+(\.\d+)?/', (string) $this->dimensi, $m);
-        $sisiCm = isset($m[0]) ? (float) $m[0] : 0.0;
 
-        if ($sisiCm <= 0) {
-            return 0.0;
-        }
-
-        $sisiM = $sisiCm / 100;
-
-        return $sisiM * $sisiM * 1.0;
-    }
 }

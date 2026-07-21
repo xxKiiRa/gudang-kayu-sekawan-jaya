@@ -62,39 +62,7 @@ class AuthController extends Controller
             ->onlyInput('email');
     }
 
-    /** Tampilkan halaman register. */
-    public function showRegister()
-    {
-        if (Auth::check()) {
-            return redirect()->route('dashboard');
-        }
 
-        return view('auth.register');
-    }
-
-    /** Proses pendaftaran akun baru. */
-    public function register(Request $request)
-    {
-        // 'confirmed' mengharuskan ada field password_confirmation yang sama
-        $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        // Simpan user; password DI-HASH agar tidak tersimpan sebagai teks polos
-        $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
-
-        // Langsung loginkan user yang baru daftar
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->route('dashboard')->with('success', 'Akun berhasil dibuat. Selamat datang, ' . $user->name . '!');
-    }
 
     /** Logout: hapus sesi & token, kembali ke login. */
     public function logout(Request $request)

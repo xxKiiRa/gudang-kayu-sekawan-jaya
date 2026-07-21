@@ -11,9 +11,11 @@ class BarangMasuk extends Model
 
     protected $fillable = [
         'kayu_id',
+        'ukuran',
         'jumlah',
         'panjang',
         'diameter',
+        'volume',
         'asal_supplier',
         'waktu_masuk',
         'kode_transaksi',
@@ -23,6 +25,7 @@ class BarangMasuk extends Model
         'waktu_masuk' => 'datetime',
         'panjang'     => 'float',
         'diameter'    => 'float',
+        'volume'      => 'float',
     ];
 
     // Relasi BelongsTo: Riwayat masuk ini milik 1 jenis Kayu tertentu
@@ -31,21 +34,5 @@ class BarangMasuk extends Model
         return $this->belongsTo(Kayu::class);
     }
 
-    /**
-     * Volume total baris ini (m³), dihitung dari panjang (m), diameter (cm), jumlah.
-     * Rumus kayu bulat (silinder): V = (π/4) × d² × L
-     *  - d = diameter dikonversi dari cm ke meter
-     *  - L = panjang dalam meter
-     */
-    public function getVolumeAttribute(): float
-    {
-        if (! $this->panjang || ! $this->diameter || ! $this->jumlah) {
-            return 0.0;
-        }
 
-        $diameterMeter   = $this->diameter / 100; // cm -> m
-        $volumePerBatang = (M_PI / 4) * ($diameterMeter ** 2) * $this->panjang;
-
-        return $volumePerBatang * $this->jumlah;
-    }
 }

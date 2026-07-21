@@ -13,9 +13,9 @@
 
     <aside id="sidebar" class="w-64 transition-all duration-300 fixed md:relative z-20 h-full bg-amber-900 text-amber-50 flex flex-col shadow-xl -translate-x-full md:translate-x-0">
         <div class="p-4 flex items-center justify-between border-b border-amber-800/50">
-            <div class="flex items-center gap-2 font-bold text-lg tracking-wide">
-                <i data-lucide="database" class="text-amber-400"></i>
-                <span>UD SEKAWAN JAYA</span>
+            <div class="flex items-center gap-3 font-bold text-lg tracking-wide">
+                <img src="{{ asset('images/logo.jpeg') }}" alt="Logo" class="w-10 h-10 object-contain rounded-md shadow-sm bg-black">
+                <span class="leading-tight">UD SEKAWAN <br> JAYA</span>
             </div>
             <button class="md:hidden text-amber-200 hover:text-white" onclick="toggleSidebar()">
                 <i data-lucide="x" class="w-5 h-5"></i>
@@ -81,8 +81,8 @@
                 <h1 id="header-title" class="text-xl font-semibold text-gray-800 capitalize">Dashboard</h1>
             </div>
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
-                    UD
+                <div class="w-8 h-8 rounded-full bg-black flex items-center justify-center overflow-hidden shadow-sm">
+                    <img src="{{ asset('images/logo.jpeg') }}" alt="Profile" class="w-full h-full object-contain">
                 </div>
             </div>
         </header>
@@ -149,21 +149,13 @@
                                 <thead class="bg-gray-50 text-gray-600">
                                     <tr>
                                         <th class="px-6 py-3 font-medium">Jenis Kayu</th>
-                                        <th class="px-6 py-3 font-medium">Dimensi</th>
-                                        <th class="px-6 py-3 font-medium">Kategori</th>
                                         <th class="px-6 py-3 font-medium text-right">Sisa Stok</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
-                                    @forelse($daftarKayu as $kayu)
+                                    @forelse($ringkasanStok as $kayu)
                                     <tr class="hover:bg-gray-50/50">
                                         <td class="px-6 py-3 font-medium text-gray-800">{{ $kayu->jenis_kayu }}</td>
-                                        <td class="px-6 py-3 text-gray-600">{{ $kayu->dimensi }}</td>
-                                        <td class="px-6 py-3">
-                                            <span class="px-2 py-1 rounded text-xs font-medium border bg-teal-50 text-teal-700 border-teal-200">
-                                                {{ $kayu->kategori }}
-                                            </span>
-                                        </td>
                                         <td class="px-6 py-3 text-right">
                                             <span class="font-semibold {{ $kayu->stok < 10 ? 'text-red-600' : 'text-gray-800' }}">{{ $kayu->stok }}</span>
                                             <span class="text-gray-500 text-xs ml-1">Btg/Lbr</span>
@@ -171,7 +163,7 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="4" class="text-center py-4 text-gray-500">Belum ada data kayu.</td>
+                                        <td colspan="2" class="text-center py-6 text-gray-500">Stok kosong</td>
                                     </tr>
                                     @endforelse
                                 </tbody>
@@ -208,58 +200,100 @@
 
             {{-- ========================= DATA MASTER KAYU ========================= --}}
             <div id="tab-master" class="tab-content hidden space-y-6">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     {{-- Form tambah jenis kayu --}}
                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                         <div class="bg-blue-50 border-b border-blue-100 px-6 py-4">
-                            <h2 class="font-semibold text-blue-800 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5"></i> Tambah Jenis Kayu</h2>
+                            <h2 class="font-semibold text-blue-800 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5"></i> Tambah Kayu</h2>
                         </div>
                         <form action="{{ route('kayu.store') }}" method="POST" class="p-6 space-y-4">
                             @csrf
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Nama Jenis Kayu <span class="text-red-500">*</span></label>
-                                <input type="text" name="jenis_kayu" placeholder="Jati / Mahoni / Akasia" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500" required>
+                                <select name="jenis_kayu" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500" required>
+                                    <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
+                                    <option value="Jati">Jati</option>
+                                    <option value="Mahoni">Mahoni</option>
+                                    <option value="Akasia">Akasia</option>
+                                </select>
                             </div>
-                            <div>
-                                <label class="block text-sm text-gray-600 mb-1">Dimensi / Diameter (opsional)</label>
-                                <input type="text" name="dimensi" placeholder="Ø 20 cm" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm text-gray-600 mb-1">Kategori (opsional)</label>
-                                <input type="text" name="kategori" placeholder="Besar / Sedang / Kecil" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Panjang (m)</label>
+                                    <input type="number" name="panjang" id="panjangMaster" step="0.01" placeholder="0.00" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500" oninput="calculateVolumeMaster()" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Diameter (cm)</label>
+                                    <input type="number" name="diameter" id="diameterMaster" step="0.1" placeholder="0.0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500" oninput="calculateVolumeMaster()" required>
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Stok Awal</label>
-                                <input type="number" name="stok" min="0" value="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500">
-                                <p class="text-xs text-gray-400 mt-1">Untuk saldo awal. Perubahan stok berikutnya lewat Barang Masuk/Keluar.</p>
+                                <input type="number" name="stok" id="stokMaster" min="0" value="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500" oninput="calculateVolumeMaster()">
                             </div>
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm">Simpan Jenis Kayu</button>
+                            <div id="volumeInfoMaster" class="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-700 font-medium">Total Volume:</span>
+                                    <span class="font-bold text-blue-700" id="totalVolumeMasterDisplay">0.0000 m³</span>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm">Simpan Data Master</button>
                         </form>
                     </div>
 
                     {{-- Daftar jenis kayu --}}
-                    <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-100"><h2 class="font-semibold text-gray-800">Daftar Jenis Kayu</h2></div>
+                    <div class="lg:col-span-3 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+                        <div class="px-6 py-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <h2 class="font-semibold text-gray-800">Katalog Daftar Kayu</h2>
+                            
+                            {{-- Filter Master --}}
+                            <div class="flex gap-2 w-full md:w-auto">
+                                <select id="filterJenisKayu" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none" onchange="filterDataMaster()">
+                                    <option value="">Semua Jenis Kayu</option>
+                                    @foreach($jenisKayuUnik as $jk)
+                                        <option value="{{ $jk->jenis_kayu }}">{{ $jk->jenis_kayu }}</option>
+                                    @endforeach
+                                </select>
+                                <select id="filterUkuran" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none" onchange="filterDataMaster()">
+                                    <option value="">Semua Ukuran (Kategori)</option>
+                                    <option value="OP">OP (Kecil)</option>
+                                    <option value="OD">OD (Sedang)</option>
+                                    <option value="OGD">OGD (Besar)</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm">
+                            <table class="w-full text-left text-sm" id="tableDataMaster">
                                 <thead class="bg-gray-50 text-gray-600">
                                     <tr>
                                         <th class="px-6 py-3 font-medium">Jenis Kayu</th>
-                                        <th class="px-6 py-3 font-medium">Dimensi</th>
-                                        <th class="px-6 py-3 font-medium">Kategori</th>
+                                        <th class="px-6 py-3 font-medium text-center">Ukuran</th>
+                                        <th class="px-6 py-3 font-medium text-right">Pjg (m)</th>
+                                        <th class="px-6 py-3 font-medium text-right">Dia (cm)</th>
                                         <th class="px-6 py-3 font-medium text-right">Stok</th>
+                                        <th class="px-6 py-3 font-medium text-right">Volume (m³)</th>
                                         <th class="px-6 py-3 font-medium text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     @forelse($daftarKayu as $kayu)
-                                    <tr class="hover:bg-gray-50/50">
+                                    <tr class="hover:bg-gray-50/50 master-row" data-jenis="{{ $kayu->jenis_kayu }}" data-ukuran="{{ $kayu->ukuran }}">
                                         <td class="px-6 py-3 font-medium text-gray-800">{{ $kayu->jenis_kayu }}</td>
-                                        <td class="px-6 py-3 text-gray-600">{{ $kayu->dimensi }}</td>
-                                        <td class="px-6 py-3 text-gray-600">{{ $kayu->kategori }}</td>
-                                        <td class="px-6 py-3 text-right font-semibold">{{ $kayu->stok }}</td>
                                         <td class="px-6 py-3 text-center">
-                                            <form action="{{ route('kayu.destroy', $kayu->id) }}" method="POST" onsubmit="return confirm('Hapus jenis kayu {{ $kayu->jenis_kayu }} beserta seluruh riwayatnya?')">
+                                            @if($kayu->ukuran == 'OP')
+                                                <span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">OP</span>
+                                            @elseif($kayu->ukuran == 'OD')
+                                                <span class="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700">OD</span>
+                                            @else
+                                                <span class="px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-700">OGD</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-3 text-right text-gray-600">{{ number_format($kayu->panjang, 2) }}</td>
+                                        <td class="px-6 py-3 text-right text-gray-600">{{ number_format($kayu->diameter, 1) }}</td>
+                                        <td class="px-6 py-3 text-right font-semibold text-gray-800">{{ $kayu->stok }}</td>
+                                        <td class="px-6 py-3 text-right text-gray-600">{{ number_format($kayu->volume, 4) }}</td>
+                                        <td class="px-6 py-3 text-center">
+                                            <form action="{{ route('kayu.destroy', $kayu->id) }}" method="POST" onsubmit="return confirm('Hapus jenis kayu {{ $kayu->jenis_kayu }} ukuran {{ $kayu->ukuran }} beserta seluruh riwayatnya?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-500 hover:text-red-700" title="Hapus">
@@ -269,8 +303,9 @@
                                         </td>
                                     </tr>
                                     @empty
-                                    <tr><td colspan="5" class="text-center py-6 text-gray-500">Belum ada jenis kayu. Tambahkan di sebelah kiri.</td></tr>
+                                    <tr id="emptyMasterRow"><td colspan="7" class="text-center py-6 text-gray-500">Belum ada jenis kayu. Tambahkan di sebelah kiri.</td></tr>
                                     @endforelse
+                                    <tr id="noResultMasterRow" class="hidden"><td colspan="7" class="text-center py-6 text-gray-500">Tidak ada data yang cocok dengan filter.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -294,34 +329,41 @@
                                 <div><label class="block text-sm text-gray-600 mb-1">Nama Supplier</label><input type="text" name="asal_supplier" placeholder="Nama CV/PT" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required></div>
                             </div>
                             <div class="space-y-4">
-                                <h3 class="font-medium text-gray-800 border-b pb-2">Detail Kayu</h3>
-                                <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Pilih Jenis Kayu</label>
-                                    <select name="kayu_id" id="kayuSelectMasuk" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
-                                        <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
-                                        @foreach($daftarKayu as $kayu)
-                                            <option value="{{ $kayu->id }}">{{ $kayu->jenis_kayu }}</option>
-                                        @endforeach
-                                    </select>
+                                <div class="flex justify-between items-center border-b pb-2">
+                                    <h3 class="font-medium text-gray-800">Detail Kayu</h3>
+                                    <button type="button" onclick="addMasukRow()" class="text-sm px-3 py-1 bg-emerald-100 text-emerald-700 font-medium rounded-md hover:bg-emerald-200 transition">+ Tambah Kayu</button>
                                 </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-sm text-gray-600 mb-1">Panjang (m)</label>
-                                        <input type="number" name="panjang" id="panjangMasuk" step="0.01" placeholder="0.00" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeMasuk()" required>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm text-gray-600 mb-1">Diameter (cm)</label>
-                                        <input type="number" name="diameter" id="diameterMasuk" step="0.1" placeholder="0.0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeMasuk()" required>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Jumlah Masuk (Batang/Lembar)</label>
-                                    <input type="number" name="jumlah" id="jumlahMasuk" step="1" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeMasuk()" required>
-                                </div>
-                                <div id="volumeInfoMasuk" class="bg-blue-50 border border-blue-200 p-3 rounded-lg">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-700 font-medium">Total Volume:</span>
-                                        <span class="text-lg font-bold text-blue-700" id="totalVolumeMasukDisplay">0.0000 m³</span>
+                                <div id="masukItemsContainer" class="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                                    <div class="masuk-item p-4 border border-gray-200 rounded-lg bg-gray-50 relative">
+                                        <div class="grid grid-cols-1 gap-3">
+                                            <div>
+                                                <label class="block text-xs text-gray-600 mb-1">Pilih Jenis Kayu</label>
+                                                <select name="jenis_kayu[]" class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm outline-none bg-white" required>
+                                                    <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
+                                                    @foreach($jenisKayuUnik as $jk)
+                                                        <option value="{{ $jk->jenis_kayu }}">{{ $jk->jenis_kayu }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-xs text-gray-600 mb-1">Panjang (m)</label>
+                                                    <input type="number" name="panjang[]" step="0.01" placeholder="0.00" class="masuk-panjang w-full border border-gray-300 rounded-md px-2 py-1 text-sm outline-none" oninput="calculateTotalVolumeMasuk()" required>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs text-gray-600 mb-1">Diameter (cm)</label>
+                                                    <input type="number" name="diameter[]" step="0.1" placeholder="0.0" class="masuk-diameter w-full border border-gray-300 rounded-md px-2 py-1 text-sm outline-none" oninput="calculateTotalVolumeMasuk()" required>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs text-gray-600 mb-1">Jumlah Masuk (Batang/Lembar)</label>
+                                                <input type="number" name="jumlah[]" step="1" placeholder="0" class="masuk-jumlah w-full border border-gray-300 rounded-md px-2 py-1 text-sm outline-none" oninput="calculateTotalVolumeMasuk()" required>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 pt-2 border-t border-gray-200 border-dashed flex justify-between items-center">
+                                            <span class="text-xs text-gray-500 font-medium">Volume (m³):</span>
+                                            <span class="text-sm font-bold text-blue-600 row-volume-display">0.0000 m³</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -374,43 +416,48 @@
                             </div>
 
                             <div class="space-y-4">
-                                <h3 class="font-medium text-gray-800 border-b pb-2 flex items-center gap-2">
-                                    <i data-lucide="shopping-cart" class="w-4 h-4"></i> Pilih Kayu
-                                </h3>
-
-                                <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Pilih Jenis Kayu</label>
-                                    <select name="kayu_id" id="kayuSelectKeluar" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
-                                        <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
-                                        @foreach($daftarKayu as $kayu)
-                                            <option value="{{ $kayu->id }}">{{ $kayu->jenis_kayu }} (Sisa: {{ $kayu->stok }})</option>
-                                        @endforeach
-                                    </select>
+                                <div class="flex justify-between items-center border-b pb-2">
+                                    <h3 class="font-medium text-gray-800 flex items-center gap-2">
+                                        <i data-lucide="shopping-cart" class="w-4 h-4"></i> Pilih Kayu
+                                    </h3>
+                                    <button type="button" onclick="addKeluarRow()" class="text-sm px-3 py-1 bg-amber-100 text-amber-700 font-medium rounded-md hover:bg-amber-200 transition">+ Tambah Kayu</button>
                                 </div>
-
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-sm text-gray-600 mb-1">Panjang (m)</label>
-                                        <input type="number" name="panjang" id="panjangKeluar" step="0.01" placeholder="0.00" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeKeluar()" required>
+                                <div id="keluarItemsContainer" class="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                                    <div class="keluar-item p-4 border border-gray-200 rounded-lg bg-gray-50 relative">
+                                        <div class="grid grid-cols-2 gap-3 mb-3">
+                                            <div>
+                                                <label class="block text-xs text-gray-600 mb-1">Pilih Jenis Kayu</label>
+                                                <select name="jenis_kayu[]" class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm outline-none bg-white" required>
+                                                    <option value="" disabled selected>-- Pilih Jenis Kayu --</option>
+                                                    @foreach($jenisKayuUnik as $jk)
+                                                        <option value="{{ $jk->jenis_kayu }}">{{ $jk->jenis_kayu }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs text-gray-600 mb-1">Ukuran (Kategori)</label>
+                                                <select name="ukuran[]" class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm outline-none bg-white" required>
+                                                    <option value="" disabled selected>-- Ukuran --</option>
+                                                    <option value="OP">OP (Kecil)</option>
+                                                    <option value="OD">OD (Sedang)</option>
+                                                    <option value="OGD">OGD (Besar)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-xs text-gray-600 mb-1">Jumlah Keluar (Btg/Lbr)</label>
+                                                <input type="number" name="jumlah[]" step="1" placeholder="0" class="keluar-jumlah w-full border border-gray-300 rounded-md px-2 py-1 text-sm outline-none" oninput="calculateTotalVolumeKeluar()" required>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs text-gray-600 mb-1">Total Volume (m³)</label>
+                                                <input type="number" name="volume[]" step="0.0001" placeholder="0.0000" class="keluar-volume w-full border border-gray-300 rounded-md px-2 py-1 text-sm outline-none focus:border-amber-500" oninput="calculateTotalVolumeKeluar()" required>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm text-gray-600 mb-1">Diameter (cm)</label>
-                                        <input type="number" name="diameter" id="diameterKeluar" step="0.1" placeholder="0.0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeKeluar()" required>
-                                    </div>
                                 </div>
 
-                                <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Jumlah Keluar (Batang/Lembar)</label>
-                                    <input type="number" name="jumlah" id="jumlahKeluar" step="1" placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="calculateVolumeKeluar()" required>
-                                    <p class="text-xs text-gray-400 mt-1">*Pastikan jumlah tidak melebihi sisa stok.</p>
-                                </div>
-
-                                <div id="volumeInfoKeluar" class="bg-orange-50 border border-orange-200 p-3 rounded-lg">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-gray-700 font-medium">Total Volume:</span>
-                                        <span class="text-lg font-bold text-orange-700" id="totalVolumeKeluarDisplay">0.0000 m³</span>
-                                    </div>
-                                </div>
+                                <p class="text-xs text-gray-400 mt-1">*Pastikan jumlah dan volume tidak melebihi sisa stok.</p>
                             </div>
                         </div>
 
@@ -560,18 +607,117 @@
             return (Math.PI / 4) * (dM ** 2) * panjang * jumlah;
         }
 
-        function calculateVolumeMasuk() {
-            const panjang  = parseFloat(document.getElementById('panjangMasuk').value) || 0;
-            const diameter = parseFloat(document.getElementById('diameterMasuk').value) || 0;
-            const jumlah   = parseInt(document.getElementById('jumlahMasuk').value) || 0;
-            document.getElementById('totalVolumeMasukDisplay').textContent = hitungVolume(panjang, diameter, jumlah).toFixed(4) + ' m³';
+        function calculateVolumeMaster() {
+            const panjang  = parseFloat(document.getElementById('panjangMaster').value) || 0;
+            const diameter = parseFloat(document.getElementById('diameterMaster').value) || 0;
+            const jumlah   = parseInt(document.getElementById('stokMaster').value) || 0;
+            document.getElementById('totalVolumeMasterDisplay').textContent = hitungVolume(panjang, diameter, jumlah).toFixed(4) + ' m³';
         }
 
-        function calculateVolumeKeluar() {
-            const panjang  = parseFloat(document.getElementById('panjangKeluar').value) || 0;
-            const diameter = parseFloat(document.getElementById('diameterKeluar').value) || 0;
-            const jumlah   = parseInt(document.getElementById('jumlahKeluar').value) || 0;
-            document.getElementById('totalVolumeKeluarDisplay').textContent = hitungVolume(panjang, diameter, jumlah).toFixed(4) + ' m³';
+        function calculateTotalVolumeMasuk() {
+            const containers = document.querySelectorAll('.masuk-item');
+            containers.forEach(container => {
+                const panjang = parseFloat(container.querySelector('.masuk-panjang').value) || 0;
+                const diameter = parseFloat(container.querySelector('.masuk-diameter').value) || 0;
+                const jumlah = parseInt(container.querySelector('.masuk-jumlah').value) || 0;
+                const volume = hitungVolume(panjang, diameter, jumlah);
+                
+                const displayElem = container.querySelector('.row-volume-display');
+                if (displayElem) {
+                    displayElem.textContent = volume.toFixed(4) + ' m³';
+                }
+            });
+        }
+
+        function addMasukRow() {
+            const container = document.getElementById('masukItemsContainer');
+            const firstItem = container.querySelector('.masuk-item');
+            const clone = firstItem.cloneNode(true);
+            
+            // Bersihkan nilai input pada clone
+            clone.querySelectorAll('input').forEach(input => input.value = '');
+            clone.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+            
+            // Tambahkan tombol hapus baris
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'absolute top-2 right-2 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-full p-1 transition';
+            removeBtn.innerHTML = '<i data-lucide="x" class="w-4 h-4"></i>';
+            removeBtn.onclick = function() {
+                container.removeChild(clone);
+                calculateTotalVolumeMasuk();
+            };
+            clone.appendChild(removeBtn);
+            
+            container.appendChild(clone);
+            lucide.createIcons();
+            calculateTotalVolumeMasuk();
+        }
+
+        function calculateTotalVolumeKeluar() {
+            // Volume total tidak lagi ditampilkan per permintaan user
+        }
+
+        function addKeluarRow() {
+            const container = document.getElementById('keluarItemsContainer');
+            const firstItem = container.querySelector('.keluar-item');
+            const clone = firstItem.cloneNode(true);
+            
+            clone.querySelectorAll('input').forEach(input => input.value = '');
+            clone.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'absolute top-2 right-2 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-full p-1 transition';
+            removeBtn.innerHTML = '<i data-lucide="x" class="w-4 h-4"></i>';
+            removeBtn.onclick = function() {
+                container.removeChild(clone);
+                calculateTotalVolumeKeluar();
+            };
+            clone.appendChild(removeBtn);
+            
+            container.appendChild(clone);
+            lucide.createIcons();
+            calculateTotalVolumeKeluar();
+        }
+
+        // ========== FILTER MASTER DATA ==========
+        function filterDataMaster() {
+            const filterJenis = document.getElementById('filterJenisKayu').value.toLowerCase();
+            const filterUkuran = document.getElementById('filterUkuran').value.toLowerCase();
+            const rows = document.querySelectorAll('.master-row');
+            let hasVisible = false;
+
+            rows.forEach(row => {
+                const jenis = row.getAttribute('data-jenis').toLowerCase();
+                const ukuran = row.getAttribute('data-ukuran').toLowerCase();
+                
+                const matchJenis = filterJenis === '' || jenis === filterJenis;
+                const matchUkuran = filterUkuran === '' || ukuran === filterUkuran;
+
+                if (matchJenis && matchUkuran) {
+                    row.classList.remove('hidden');
+                    hasVisible = true;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            const emptyRow = document.getElementById('emptyMasterRow');
+            const noResultRow = document.getElementById('noResultMasterRow');
+            
+            if (emptyRow && !emptyRow.classList.contains('hidden') && rows.length === 0) {
+                // If really empty initially, keep emptyRow visible
+            } else {
+                if (emptyRow) emptyRow.classList.add('hidden');
+                if (noResultRow) {
+                    if (hasVisible) {
+                        noResultRow.classList.add('hidden');
+                    } else {
+                        noResultRow.classList.remove('hidden');
+                    }
+                }
+            }
         }
 
         // ========== GANTI TAB MENU ==========
@@ -593,8 +739,22 @@
             if (activeIcon) activeIcon.classList.add('text-amber-400');
 
             document.getElementById('header-title').innerText = activeBtn.getAttribute('data-title');
+            // Perbarui URL dengan parameter ?tab= tanpa reload halaman
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabId);
+            history.replaceState(null, null, url.toString());
+
             if (window.innerWidth < 768) toggleSidebar();
         }
+
+        // Buka tab berdasarkan parameter URL ?tab= saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            if (tab && document.getElementById('tab-' + tab)) {
+                switchTab(tab);
+            }
+        });
 
         // ========== BUKA/TUTUP SIDEBAR ==========
         function toggleSidebar() {

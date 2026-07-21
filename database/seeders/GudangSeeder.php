@@ -17,9 +17,9 @@ class GudangSeeder extends Seeder
 
         // ----------------------------- MASTER KAYU -----------------------------
         // 'kategori' = label ukuran (dulu bernama 'panjang')
-        $jati   = Kayu::create(['jenis_kayu' => 'Jati',   'dimensi' => 'Ø 20 cm', 'kategori' => 'Besar',  'stok' => 0]);
-        $mahoni = Kayu::create(['jenis_kayu' => 'Mahoni', 'dimensi' => 'Ø 15 cm', 'kategori' => 'Sedang', 'stok' => 0]);
-        $akasia = Kayu::create(['jenis_kayu' => 'Akasia', 'dimensi' => 'Ø 12 cm', 'kategori' => 'Sedang', 'stok' => 0]);
+        $jati   = Kayu::create(['jenis_kayu' => 'Jati',   'stok' => 0]);
+        $mahoni = Kayu::create(['jenis_kayu' => 'Mahoni', 'stok' => 0]);
+        $akasia = Kayu::create(['jenis_kayu' => 'Akasia', 'stok' => 0]);
 
         // ------------------- TRANSAKSI BULAN LALU (saldo awal) ------------------
         $this->masuk($jati,   120, 4.0, 22, 'CV. Kayu Makmur',   $bulanLalu, 'SJ-IN-000');

@@ -40,11 +40,26 @@
                 @csrf
                 @method('PUT')
 
-                {{-- Jenis kayu dikunci demi konsistensi stok --}}
-                <div>
-                    <label class="block text-sm text-gray-600 mb-1">Jenis Kayu (tidak dapat diubah)</label>
-                    <input type="text" value="{{ $keluar->kayu->jenis_kayu }} (Sisa stok: {{ $keluar->kayu->stok }})" class="w-full border border-gray-200 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500" disabled>
-                    <p class="text-xs text-gray-400 mt-1">Untuk mengganti jenis kayu, hapus transaksi ini lalu buat baru.</p>
+                {{-- Jenis kayu dan Ukuran --}}
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Pilih Jenis Kayu</label>
+                        <select name="jenis_kayu" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
+                            @foreach($jenisKayuUnik as $jk)
+                                <option value="{{ $jk->jenis_kayu }}" {{ $keluar->kayu->jenis_kayu == $jk->jenis_kayu ? 'selected' : '' }}>
+                                    {{ $jk->jenis_kayu }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Ukuran (Kategori)</label>
+                        <select name="ukuran" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
+                            <option value="OP" {{ $keluar->ukuran == 'OP' ? 'selected' : '' }}>OP (Kecil)</option>
+                            <option value="OD" {{ $keluar->ukuran == 'OD' ? 'selected' : '' }}>OD (Sedang)</option>
+                            <option value="OGD" {{ $keluar->ukuran == 'OGD' ? 'selected' : '' }}>OGD (Besar)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -72,24 +87,15 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-sm text-gray-600 mb-1">Panjang (m)</label>
-                        <input type="number" name="panjang" id="panjang" step="0.01" value="{{ old('panjang', $keluar->panjang) }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="hitungVolume()" required>
+                        <label class="block text-sm text-gray-600 mb-1">Jumlah Keluar (Btg/Lbr)</label>
+                        <input type="number" name="jumlah" step="1" value="{{ old('jumlah', $keluar->jumlah) }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-600 mb-1">Diameter (cm)</label>
-                        <input type="number" name="diameter" id="diameter" step="0.1" value="{{ old('diameter', $keluar->diameter) }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="hitungVolume()" required>
+                        <label class="block text-sm text-gray-600 mb-1">Total Volume (m³)</label>
+                        <input type="number" name="volume" step="0.0001" value="{{ old('volume', $keluar->volume) }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-amber-500" required>
                     </div>
-                    <div>
-                        <label class="block text-sm text-gray-600 mb-1">Jumlah (Batang)</label>
-                        <input type="number" name="jumlah" id="jumlah" step="1" value="{{ old('jumlah', $keluar->jumlah) }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" oninput="hitungVolume()" required>
-                    </div>
-                </div>
-
-                <div class="bg-orange-50 border border-orange-200 p-3 rounded-lg flex justify-between items-center">
-                    <span class="text-gray-700 font-medium">Total Volume:</span>
-                    <span class="text-lg font-bold text-orange-700" id="volumeDisplay">0.0000 m³</span>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
@@ -102,19 +108,6 @@
 
     <script>
         lucide.createIcons();
-
-        function hitungVolume() {
-            const panjang  = parseFloat(document.getElementById('panjang').value) || 0;
-            const diameter = parseFloat(document.getElementById('diameter').value) || 0;
-            const jumlah   = parseInt(document.getElementById('jumlah').value) || 0;
-            let vol = 0;
-            if (panjang > 0 && diameter > 0 && jumlah > 0) {
-                const dM = diameter / 100;
-                vol = (Math.PI / 4) * (dM ** 2) * panjang * jumlah;
-            }
-            document.getElementById('volumeDisplay').textContent = vol.toFixed(4) + ' m³';
-        }
-        hitungVolume();
     </script>
 </body>
 </html>

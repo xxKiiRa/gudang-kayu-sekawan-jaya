@@ -12,8 +12,8 @@
     <div class="w-full max-w-md">
 
         <div class="text-center mb-6">
-            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-900 text-amber-300 mb-3 shadow-lg">
-                <i data-lucide="database" class="w-7 h-7"></i>
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-black mb-3 shadow-lg overflow-hidden">
+                <img src="{{ asset('images/logo.jpeg') }}" alt="Logo" class="w-full h-full object-contain">
             </div>
             <h1 class="text-2xl font-bold text-amber-900">UD Sekawan Jaya</h1>
             <p class="text-sm text-amber-700/70">Sistem Manajemen Gudang Kayu</p>

@@ -43,11 +43,16 @@
                 @csrf
                 @method('PUT')
 
-                {{-- Jenis kayu DIKUNCI (tidak bisa diubah) agar stok tetap konsisten --}}
+                {{-- Jenis kayu dapat diubah --}}
                 <div>
-                    <label class="block text-sm text-gray-600 mb-1">Jenis Kayu (tidak dapat diubah)</label>
-                    <input type="text" value="{{ $masuk->kayu->jenis_kayu }}" class="w-full border border-gray-200 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500" disabled>
-                    <p class="text-xs text-gray-400 mt-1">Untuk mengganti jenis kayu, hapus transaksi ini lalu buat baru.</p>
+                    <label class="block text-sm text-gray-600 mb-1">Pilih Jenis Kayu</label>
+                    <select name="jenis_kayu" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none" required>
+                        @foreach($jenisKayuUnik as $jk)
+                            <option value="{{ $jk->jenis_kayu }}" {{ $masuk->kayu->jenis_kayu == $jk->jenis_kayu ? 'selected' : '' }}>
+                                {{ $jk->jenis_kayu }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
